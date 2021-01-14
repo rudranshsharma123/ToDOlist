@@ -1,15 +1,40 @@
-
 import 'package:flutter/material.dart';
-
+import 'package:ToDoIst/Tasks.dart';
 import 'bottom_sheet.dart';
 import 'package:ToDoIst/Widgets/toDoListbuilder.dart';
-
+import 'package:ToDoIst/SharedPrefs.dart';
 import 'package:provider/provider.dart';
 import 'package:ToDoIst/providerTaskList.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+SharedPref prefs = SharedPref();
+var loadedTask;
+bool isFirstTime; 
+
+class _HomePageState extends State<HomePage> {
   Widget buildBottomSheet(BuildContext context) {
     return SwipeUpBottomSheet();
+  }
+
+  loadSharedPrefs() async {
+    try {
+      var loadedTasklist = await prefs.read('tasks');
+      setState(() {
+        loadedTask = loadedTasklist;
+        Provider.of<MyTaskListProvider>(context, listen: false)
+            .loadTask(loadedTask);
+
+        print('loadsde');
+        print(loadedTask[0]['title']);
+      });
+    } catch (E) {
+      print("blep you fool");
+      print(E);
+    }
   }
 
   @override
@@ -20,7 +45,10 @@ class HomePage extends StatelessWidget {
         onPressed: () {
           showModalBottomSheet(context: context, builder: buildBottomSheet);
         },
-        child: Icon(Icons.plus_one),
+        child: Icon(
+          Icons.plus_one,
+          color: Colors.black,
+        ),
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
@@ -29,9 +57,21 @@ class HomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                child: Icon(
-                  Icons.menu,
-                  size: 30,
+                child: FlatButton(
+                  onPressed: () {
+                    
+                    prefs.save(
+                        "tasks",
+                        Provider.of<MyTaskListProvider>(context, listen: false)
+                            .taskList);
+                    print('ohio saved');
+                    loadSharedPrefs();
+                  },
+                  child: Icon(
+                    Icons.menu,
+                    size: 30,
+                    color: Colors.black,
+                  ),
                 ),
                 backgroundColor: Colors.white,
                 radius: 30,

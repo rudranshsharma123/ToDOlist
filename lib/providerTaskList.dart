@@ -25,4 +25,13 @@ class MyTaskListProvider extends ChangeNotifier {
     taskList.removeAt(index);
     notifyListeners();
   }
+
+  void loadTask(var list) {
+    taskList.clear();
+    for (var item in list) {
+      taskList.add(Task(title: item['title'], isChecked: item['isChecked']));
+    }
+
+    notifyListeners();
+  }
 }
